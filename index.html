@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Todo</title>
+        <meta name="viewport" content="width=device-with initial-scale=1">
+        <style>
+            
+            *{
+                box-sizing: border-box;
+            }
+
+            .title {
+                text-align: center;
+            }
+
+            .container-todo {
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+            input[type=text] {
+                width: 100%;
+                padding: 0.3rem 1rem;
+                margin-bottom: 1rem;
+            }
+
+            button {
+                padding: 0.3rem 1rem;
+                text-transform: uppercase;
+            }
+
+
+            .todo-app {
+                width: 100%;
+                padding-left:1rem;
+                padding-right: 1rem;
+            }
+
+            .container-list {
+                width: 100%;
+            }
+
+            .container-list ul {
+                list-style: none;
+                padding-left: 0;
+            }
+
+            .container-list ul li {
+                padding-top: 0.5rem;
+                padding-bottom: 0.5rem;
+                font-size: 1.5rem;
+            }
+
+            .striped {
+                text-decoration: line-through;
+            }
+
+
+            /**
+                responsive
+            */
+
+            @media only screen and (min-width: 992px) {
+
+                .todo-app {
+                    width:992px;
+                    margin-left: auto;
+                    margin-right: auto;
+                    
+                }
+
+                input[type=text] {
+                    width: 80%;
+                    margin-bottom: 0;
+                }
+
+                button {
+                    margin-left: 0.5rem;
+                }
+
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <div class="todo-app">
+                <h1 class="title">Todo List</h1>
+                <div class="container-todo">
+                    <input type="text" name="todo" v-model="inputValue">
+                    <button type="button" @click="addTodo">Add Todo</button>
+                </div>
+                <div class="container-list">
+                    <ul v-if="list.length">
+                        <li v-for="item in filteredTodo" :key="item.id" :class="isChecked(item.checked)" ><input type="checkbox"  v-model="item.checked"> {{ item.todoItem }}<button type="button" @click="removeTodo(item.id)">X</button></li>
+                    </ul>
+                </div>
+                <div>
+                    <button type="button" @click="showAll = !showAll">{{ showAll?"Hide completed":"show All" }}</button>
+                </div>
+
+            </div>
+        </div>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js" type="text/javascript"></script>
+        <script>
+            const  {createApp, reactive, ref, computed } = Vue ;
+
+
+            const vue = createApp(
+                {
+                    setup(){
+                        const list = ref([
+                            {
+                                id : 1,
+                                todoItem : "Learning Vue.js",
+                                checked : false ,
+                            },
+                            {
+                                id : 2,
+                                todoItem : "Learning Javascript",
+                                checked : true ,
+                            },
+
+                            {
+                                id : 3,
+                                todoItem : "Learning Php",
+                                checked : false,
+                            }
+                        ]);
+
+                        const inputValue = ref("");
+
+               
+
+                        let showAll = ref(true);
+
+
+                        let lastId = ref(4);
+
+                        const isChecked = (state) => {
+                            return (state)?"striped":"";
+                        }
+
+                        const addTodo = () => {
+
+                            if(inputValue.value.length == 0 )
+                            return ;
+
+                           list.value.push({
+                            id:lastId,
+                            todoItem : `Learn ${inputValue.value}`,
+                            checked : false ,
+                           })
+                           inputValue.value = "";
+                        }
+
+                        const inputChanged = (id) => {
+                            
+                            list.value.forEach((item) =>{
+                                if(item.id == id) {
+                                    item.checked = !item.checked ;
+                                }
+                            },id)
+                        }
+
+                        const removeTodo = (id)  => {
+                            list.value = list.value.filter((item) =>{
+
+                                if(item.id != id){
+                                    return item;
+                                }
+       
+                            });
+                        }
+
+                        const filteredTodo = computed(() =>{
+                            return showAll.value ?list.value:list.value.filter((item) => item.checked == false);
+                        });
+
+                        return {
+                            list,
+                            isChecked,
+                            inputChanged,
+                            inputValue,
+                            addTodo,
+                            removeTodo,
+                            showAll,
+                            filteredTodo,
+                        };
+                    }
+                }).mount("#app");
+        </script>
+    </body>
+</html>
